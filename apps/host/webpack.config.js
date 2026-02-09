@@ -1,6 +1,5 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
-const path = require('path');
+const { ModuleFederationPlugin } = require('@module-federation/enhanced/webpack');
 
 module.exports = {
   entry: './src/index.ts',
@@ -42,7 +41,7 @@ module.exports = {
     new ModuleFederationPlugin({
       name: 'host_app',
       remotes: {
-        userManagementMfe: 'user_management_mfe@http://localhost:5173/remoteEntry.js',
+        userManagementMfe: 'user_management_mfe@http://localhost:5173/mf-manifest.json',
       },
       shared: {
         react: {

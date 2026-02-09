@@ -1,6 +1,5 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
-const path = require('path');
+const { ModuleFederationPlugin } = require('@module-federation/enhanced/webpack');
 
 module.exports = {
   entry: './src/index.ts',
@@ -9,6 +8,9 @@ module.exports = {
     port: 5173,
     historyApiFallback: true,
     hot: true,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+    },
   },
   output: {
     publicPath: 'http://localhost:5173/',
@@ -58,6 +60,8 @@ module.exports = {
           singleton: true,
         },
       },
+      manifest: true,
+      dts: false,
     }),
     new HtmlWebpackPlugin({
       template: './index.html',

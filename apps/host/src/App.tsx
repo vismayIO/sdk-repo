@@ -60,8 +60,8 @@ function Navigation() {
                             <Link
                                 to="/"
                                 className={`px-4 py-2 rounded-lg transition ${location.pathname === "/"
-                                        ? "bg-blue-600 text-white"
-                                        : "text-gray-600 hover:bg-gray-100"
+                                    ? "bg-blue-600 text-white"
+                                    : "text-gray-600 hover:bg-gray-100"
                                     }`}
                             >
                                 Home
@@ -69,8 +69,8 @@ function Navigation() {
                             <Link
                                 to="/users"
                                 className={`px-4 py-2 rounded-lg transition ${location.pathname === "/users"
-                                        ? "bg-blue-600 text-white"
-                                        : "text-gray-600 hover:bg-gray-100"
+                                    ? "bg-blue-600 text-white"
+                                    : "text-gray-600 hover:bg-gray-100"
                                     }`}
                             >
                                 User Management (MFE)
