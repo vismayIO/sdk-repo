@@ -1,33 +1,28 @@
-[45326] 2026/02/09 14:02:54.734397 [INF] Starting nats-server
-[45326] 2026/02/09 14:02:54.734508 [INF]   Version:  2.12.4
-[45326] 2026/02/09 14:02:54.734517 [INF]   Git:      [34894c1]
-[45326] 2026/02/09 14:02:54.734525 [INF]   Name:     NCUNO3XUYRFY2P7UQFS4SNQ4SZJEGKDIFVSQPLFPKQZKN35FZD5GUFPC
-[45326] 2026/02/09 14:02:54.734542 [INF]   Node:     wqQTlVwa
-[45326] 2026/02/09 14:02:54.734552 [INF]   ID:       NCUNO3XUYRFY2P7UQFS4SNQ4SZJEGKDIFVSQPLFPKQZKN35FZD5GUFPC
-[45326] 2026/02/09 14:02:54.734581 [INF] Using configuration file: nats-server.conf (sha256:e40befe6b54006702a48fbfbae8e020f68cbaa66cf3bd386f5b287c49886e87e)
-[45326] 2026/02/09 14:02:54.735351 [INF] Starting http monitor on 0.0.0.0:8222
-[45326] 2026/02/09 14:02:54.735541 [INF] Starting JetStream
-[45326] 2026/02/09 14:02:54.735726 [INF]     _ ___ _____ ___ _____ ___ ___   _   __  __
-[45326] 2026/02/09 14:02:54.735741 [INF]  _ | | __|_   _/ __|_   _| _ \ __| /_\ |  \/  |
-[45326] 2026/02/09 14:02:54.735748 [INF] | || | _|  | | \__ \ | | |   / _| / _ \| |\/| |
-[45326] 2026/02/09 14:02:54.735755 [INF]  \__/|___| |_| |___/ |_| |_|_\___/_/ \_\_|  |_|
-[45326] 2026/02/09 14:02:54.735765 [INF] 
-[45326] 2026/02/09 14:02:54.735779 [INF]          https://docs.nats.io/jetstream
-[45326] 2026/02/09 14:02:54.735784 [INF] 
-[45326] 2026/02/09 14:02:54.735790 [INF] ---------------- JETSTREAM ----------------
-[45326] 2026/02/09 14:02:54.735800 [INF]   Strict:          true
-[45326] 2026/02/09 14:02:54.735812 [INF]   Max Memory:      10.84 GB
-[45326] 2026/02/09 14:02:54.735823 [INF]   Max Storage:     135.93 GB
-[45326] 2026/02/09 14:02:54.735828 [INF]   Store Directory: "/tmp/nats/jetstream"
-[45326] 2026/02/09 14:02:54.735839 [INF]   API Level:       2
-[45326] 2026/02/09 14:02:54.735848 [INF] -------------------------------------------
-[45326] 2026/02/09 14:02:54.736186 [INF] Took 620.901µs to start JetStream
-[45326] 2026/02/09 14:02:54.736276 [INF] Listening for websocket clients on ws://0.0.0.0:8080
-[45326] 2026/02/09 14:02:54.736292 [WRN] Websocket not configured with TLS. DO NOT USE IN PRODUCTION!
-[45326] 2026/02/09 14:02:54.736655 [INF] Listening for client connections on 0.0.0.0:4222
-[45326] 2026/02/09 14:02:54.736881 [INF] Server is ready
-[45326] 2026/02/09 14:08:18.773095 [INF] Trapped "terminated" signal
-[45326] 2026/02/09 14:08:18.773287 [INF] Initiating Shutdown...
-[45326] 2026/02/09 14:08:18.773357 [INF] Initiating JetStream Shutdown...
-[45326] 2026/02/09 14:08:18.773370 [INF] JetStream Shutdown
-[45326] 2026/02/09 14:08:18.773651 [INF] Server Exiting..
+[84662] 2026/02/09 18:02:08.908146 [INF] Starting nats-server
+[84662] 2026/02/09 18:02:08.908233 [INF]   Version:  2.12.4
+[84662] 2026/02/09 18:02:08.908244 [INF]   Git:      [34894c1]
+[84662] 2026/02/09 18:02:08.908254 [INF]   Name:     NCVNRRXKYAECYNJV4IR36C2YYPXCLBYMM3QAU4BEVAEUCSN7ICIEJCBP
+[84662] 2026/02/09 18:02:08.908272 [INF]   Node:     X2rUNoEs
+[84662] 2026/02/09 18:02:08.908287 [INF]   ID:       NCVNRRXKYAECYNJV4IR36C2YYPXCLBYMM3QAU4BEVAEUCSN7ICIEJCBP
+[84662] 2026/02/09 18:02:08.908319 [INF] Using configuration file: nats-server.conf (sha256:e40befe6b54006702a48fbfbae8e020f68cbaa66cf3bd386f5b287c49886e87e)
+[84662] 2026/02/09 18:02:08.909325 [INF] Starting http monitor on 0.0.0.0:8222
+[84662] 2026/02/09 18:02:08.909645 [INF] Starting JetStream
+[84662] 2026/02/09 18:02:08.910022 [INF]     _ ___ _____ ___ _____ ___ ___   _   __  __
+[84662] 2026/02/09 18:02:08.910042 [INF]  _ | | __|_   _/ __|_   _| _ \ __| /_\ |  \/  |
+[84662] 2026/02/09 18:02:08.910052 [INF] | || | _|  | | \__ \ | | |   / _| / _ \| |\/| |
+[84662] 2026/02/09 18:02:08.910062 [INF]  \__/|___| |_| |___/ |_| |_|_\___/_/ \_\_|  |_|
+[84662] 2026/02/09 18:02:08.910075 [INF] 
+[84662] 2026/02/09 18:02:08.910087 [INF]          https://docs.nats.io/jetstream
+[84662] 2026/02/09 18:02:08.910099 [INF] 
+[84662] 2026/02/09 18:02:08.910111 [INF] ---------------- JETSTREAM ----------------
+[84662] 2026/02/09 18:02:08.910123 [INF]   Strict:          true
+[84662] 2026/02/09 18:02:08.910138 [INF]   Max Memory:      10.84 GB
+[84662] 2026/02/09 18:02:08.910151 [INF]   Max Storage:     135.86 GB
+[84662] 2026/02/09 18:02:08.910162 [INF]   Store Directory: "/tmp/nats/jetstream"
+[84662] 2026/02/09 18:02:08.910173 [INF]   API Level:       2
+[84662] 2026/02/09 18:02:08.910186 [INF] -------------------------------------------
+[84662] 2026/02/09 18:02:08.910618 [INF] Took 947.958µs to start JetStream
+[84662] 2026/02/09 18:02:08.910721 [INF] Listening for websocket clients on ws://0.0.0.0:8080
+[84662] 2026/02/09 18:02:08.910743 [WRN] Websocket not configured with TLS. DO NOT USE IN PRODUCTION!
+[84662] 2026/02/09 18:02:08.911158 [INF] Listening for client connections on 0.0.0.0:4222
+[84662] 2026/02/09 18:02:08.911500 [INF] Server is ready

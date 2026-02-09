@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -8,17 +8,31 @@ import {
     Button,
     Input,
     Label,
+    Select,
 } from '@sdk-repo/sdk/components';
 import type { User } from '@sdk-repo/sdk/api';
+
+const ROLE_OPTIONS = [
+    { value: 'Admin', label: 'Admin' },
+    { value: 'Developer', label: 'Developer' },
+    { value: 'Designer', label: 'Designer' },
+    { value: 'Manager', label: 'Manager' },
+    { value: 'Viewer', label: 'Viewer' },
+];
 
 interface UserFormProps {
     open: boolean;
     onClose: () => void;
-    onSubmit: (data: any) => Promise<void>;
+    onSubmit: (data: { name: string; email: string; role: string }) => Promise<void>;
     initialData?: User | null;
 }
 
-export function UserForm({ open, onClose, onSubmit, initialData }: UserFormProps) {
+export const UserForm = memo(function UserForm({
+    open,
+    onClose,
+    onSubmit,
+    initialData,
+}: UserFormProps) {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -35,11 +49,7 @@ export function UserForm({ open, onClose, onSubmit, initialData }: UserFormProps
                 role: initialData.role,
             });
         } else {
-            setFormData({
-                name: '',
-                email: '',
-                role: 'Developer',
-            });
+            setFormData({ name: '', email: '', role: 'Developer' });
         }
         setErrors({});
     }, [initialData, open]);
@@ -49,6 +59,8 @@ export function UserForm({ open, onClose, onSubmit, initialData }: UserFormProps
 
         if (!formData.name.trim()) {
             newErrors.name = 'Name is required';
+        } else if (formData.name.trim().length < 2) {
+            newErrors.name = 'Name must be at least 2 characters';
         }
 
         if (!formData.email.trim()) {
@@ -67,13 +79,11 @@ export function UserForm({ open, onClose, onSubmit, initialData }: UserFormProps
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
         if (!validate()) return;
 
         try {
             setLoading(true);
             await onSubmit(formData);
-            onClose();
         } catch (error) {
             console.error('Form submission error:', error);
         } finally {
@@ -96,24 +106,23 @@ export function UserForm({ open, onClose, onSubmit, initialData }: UserFormProps
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-                    <div>
-                        <Label htmlFor="name">Name</Label>
+                    <div className="space-y-2">
+                        <Label htmlFor="name">Full Name</Label>
                         <Input
                             id="name"
                             value={formData.name}
                             onChange={(e) =>
                                 setFormData({ ...formData, name: e.target.value })
                             }
-                            placeholder="Enter name"
-                            className="mt-1"
+                            placeholder="e.g. Rahul Kumar"
                         />
                         {errors.name && (
-                            <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                            <p className="text-destructive text-sm">{errors.name}</p>
                         )}
                     </div>
 
-                    <div>
-                        <Label htmlFor="email">Email</Label>
+                    <div className="space-y-2">
+                        <Label htmlFor="email">Email Address</Label>
                         <Input
                             id="email"
                             type="email"
@@ -121,35 +130,29 @@ export function UserForm({ open, onClose, onSubmit, initialData }: UserFormProps
                             onChange={(e) =>
                                 setFormData({ ...formData, email: e.target.value })
                             }
-                            placeholder="Enter email"
-                            className="mt-1"
+                            placeholder="e.g. rahul@company.com"
                         />
                         {errors.email && (
-                            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                            <p className="text-destructive text-sm">{errors.email}</p>
                         )}
                     </div>
 
-                    <div>
+                    <div className="space-y-2">
                         <Label htmlFor="role">Role</Label>
-                        <select
+                        <Select
                             id="role"
                             value={formData.role}
                             onChange={(e) =>
                                 setFormData({ ...formData, role: e.target.value })
                             }
-                            className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm mt-1"
-                        >
-                            <option value="Admin">Admin</option>
-                            <option value="Developer">Developer</option>
-                            <option value="Designer">Designer</option>
-                            <option value="Manager">Manager</option>
-                        </select>
+                            options={ROLE_OPTIONS}
+                        />
                         {errors.role && (
-                            <p className="text-red-500 text-sm mt-1">{errors.role}</p>
+                            <p className="text-destructive text-sm">{errors.role}</p>
                         )}
                     </div>
 
-                    <div className="flex justify-end space-x-2 pt-4">
+                    <div className="flex justify-end gap-2 pt-4 border-t border-border">
                         <Button
                             type="button"
                             variant="outline"
@@ -159,11 +162,15 @@ export function UserForm({ open, onClose, onSubmit, initialData }: UserFormProps
                             Cancel
                         </Button>
                         <Button type="submit" disabled={loading}>
-                            {loading ? 'Saving...' : initialData ? 'Update' : 'Create'}
+                            {loading
+                                ? 'Saving...'
+                                : initialData
+                                ? 'Update User'
+                                : 'Create User'}
                         </Button>
                     </div>
                 </form>
             </DialogContent>
         </Dialog>
     );
-}
+});

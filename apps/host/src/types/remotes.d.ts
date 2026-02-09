@@ -1,3 +1,4 @@
 declare module 'userManagementMfe/UserDashboard' {
-  export const UserDashboard: React.ComponentType;
+    import type { ComponentType } from 'react';
+    export const UserDashboard: ComponentType;
 }

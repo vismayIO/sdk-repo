@@ -1,222 +1,509 @@
-import { lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
+import { lazy, Suspense, useEffect, useState } from "react";
+import {
+    BrowserRouter,
+    Routes,
+    Route,
+    Link,
+    useLocation,
+} from "react-router-dom";
+import {
+    AuthProvider,
+    useAuth,
+    ThemeProvider,
+    useTheme,
+    useEventBus,
+} from "@sdk-repo/sdk/hooks";
+import type { AuthUser } from "@sdk-repo/sdk/hooks";
+import {
+    Button,
+    Card,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardContent,
+    Avatar,
+    Badge,
+    useToast,
+    Toaster,
+} from "@sdk-repo/sdk/components";
+import { initializeDuckDb } from "@sdk-repo/sdk/duck-db";
 import "@sdk-repo/sdk/styles.css";
+import "./index.css";
 
-// Lazy load remote MFE
+// ─── Lazy load Remote MFE ──────────────────────────────────────────────────────
+
 const UserDashboard = lazy(() =>
     import("userManagementMfe/UserDashboard")
-        .then(module => ({ default: module.UserDashboard }))
-        .catch(() => {
-            console.error("Failed to load User Management MFE");
-            return { default: ErrorFallback };
-        })
+        .then((module) => ({ default: module.UserDashboard }))
+        .catch(() => ({ default: ErrorFallback }))
 );
+
+// ─── Error Fallback ─────────────────────────────────────────────────────────────
 
 function ErrorFallback() {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-red-50">
-            <div className="bg-white p-8 rounded-lg shadow-lg max-w-md">
-                <h2 className="text-2xl font-bold text-red-600 mb-4">⚠️ MFE Load Error</h2>
-                <p className="text-gray-700 mb-4">
-                    Failed to load User Management Micro-Frontend.
-                </p>
-                <p className="text-sm text-gray-600 mb-4">
-                    Make sure the remote app is running on <code className="bg-gray-100 px-2 py-1 rounded">http://localhost:5173</code>
-                </p>
-                <Link
-                    to="/"
-                    className="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                >
-                    Go Back Home
-                </Link>
-            </div>
+        <div className="min-h-[60vh] flex items-center justify-center">
+            <Card className="max-w-md w-full">
+                <CardHeader>
+                    <CardTitle className="text-destructive">
+                        MFE Load Failed
+                    </CardTitle>
+                    <CardDescription>
+                        Could not load the User Management micro-frontend. Make sure
+                        the remote app is running on{" "}
+                        <code className="bg-muted px-1.5 py-0.5 rounded text-xs">
+                            http://localhost:5173
+                        </code>
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex gap-2">
+                        <Button onClick={() => window.location.reload()}>
+                            Retry
+                        </Button>
+                        <Link to="/">
+                            <Button variant="outline">Go Home</Button>
+                        </Link>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }
+
+// ─── Loading Fallback ───────────────────────────────────────────────────────────
 
 function LoadingFallback() {
     return (
-        <div className="min-h-screen flex items-center justify-center">
+        <div className="min-h-[60vh] flex items-center justify-center">
             <div className="text-center">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
-                <p className="text-gray-600 text-lg">Loading Micro-Frontend...</p>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary mx-auto mb-4" />
+                <p className="text-muted-foreground">
+                    Loading Micro-Frontend...
+                </p>
             </div>
         </div>
     );
 }
+
+// ─── Login Screen ───────────────────────────────────────────────────────────────
+
+const DEMO_USERS: {
+    role: AuthUser["role"];
+    name: string;
+    email: string;
+    desc: string;
+    icon: string;
+    permissions: string[];
+    color: string;
+}[] = [
+    {
+        role: "Admin",
+        name: "Rahul Kumar",
+        email: "rahul@company.com",
+        desc: "Full platform access",
+        icon: "👑",
+        permissions: ["Create", "Edit", "Delete", "Export", "Manage Roles"],
+        color: "border-red-200 hover:border-red-400 dark:border-red-800 dark:hover:border-red-600",
+    },
+    {
+        role: "Manager",
+        name: "Neha Singh",
+        email: "neha@company.com",
+        desc: "Team management access",
+        icon: "📊",
+        permissions: ["Create", "Edit", "Export"],
+        color: "border-blue-200 hover:border-blue-400 dark:border-blue-800 dark:hover:border-blue-600",
+    },
+    {
+        role: "Developer",
+        name: "Priya Sharma",
+        email: "priya@company.com",
+        desc: "Development access",
+        icon: "💻",
+        permissions: ["Create", "Edit"],
+        color: "border-green-200 hover:border-green-400 dark:border-green-800 dark:hover:border-green-600",
+    },
+    {
+        role: "Designer",
+        name: "Amit Patel",
+        email: "amit@company.com",
+        desc: "Design access only",
+        icon: "🎨",
+        permissions: ["Edit"],
+        color: "border-purple-200 hover:border-purple-400 dark:border-purple-800 dark:hover:border-purple-600",
+    },
+    {
+        role: "Viewer",
+        name: "Vikram Joshi",
+        email: "vikram@company.com",
+        desc: "Read-only access",
+        icon: "👁️",
+        permissions: ["View only"],
+        color: "border-gray-200 hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-500",
+    },
+];
+
+function LoginScreen() {
+    const { login } = useAuth();
+    const { toggleTheme, resolvedTheme } = useTheme();
+
+    return (
+        <div className="min-h-screen bg-background flex items-center justify-center p-6">
+            <div className="max-w-4xl w-full">
+                {/* Theme toggle */}
+                <div className="flex justify-end mb-6">
+                    <button
+                        onClick={toggleTheme}
+                        className="p-2 rounded-lg border border-border bg-card hover:bg-muted transition text-lg"
+                        title="Toggle theme"
+                    >
+                        {resolvedTheme === "dark" ? "☀️" : "🌙"}
+                    </button>
+                </div>
+
+                <div className="text-center mb-10">
+                    <h1 className="text-4xl font-bold text-foreground mb-2">
+                        Platform Login
+                    </h1>
+                    <p className="text-muted-foreground">
+                        Select a role to explore different permission levels
+                    </p>
+                </div>
+
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {DEMO_USERS.map((u) => (
+                        <button
+                            key={u.role}
+                            onClick={() =>
+                                login({
+                                    id: `user-${u.role.toLowerCase()}`,
+                                    name: u.name,
+                                    email: u.email,
+                                    role: u.role,
+                                })
+                            }
+                            className={`p-5 rounded-xl border-2 bg-card text-left transition-all hover:shadow-md hover:scale-[1.02] active:scale-[0.98] ${u.color}`}
+                        >
+                            <div className="text-3xl mb-3">{u.icon}</div>
+                            <h3 className="font-bold text-lg text-foreground">
+                                {u.role}
+                            </h3>
+                            <p className="text-sm text-foreground/80 mt-0.5">
+                                {u.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground mb-3">
+                                {u.desc}
+                            </p>
+                            <div className="flex flex-wrap gap-1">
+                                {u.permissions.map((p) => (
+                                    <span
+                                        key={p}
+                                        className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded"
+                                    >
+                                        {p}
+                                    </span>
+                                ))}
+                            </div>
+                        </button>
+                    ))}
+                </div>
+
+                <p className="text-center text-xs text-muted-foreground mt-8">
+                    This is a simulated login for demonstrating role-based access
+                    control across micro-frontends.
+                </p>
+            </div>
+        </div>
+    );
+}
+
+// ─── Navigation ─────────────────────────────────────────────────────────────────
 
 function Navigation() {
+    const { user, logout, permissions } = useAuth();
+    const { toggleTheme, resolvedTheme } = useTheme();
     const location = useLocation();
+    const { on, off } = useEventBus();
+    const { toasts, toast, dismiss } = useToast();
+    const [mfeNotification, setMfeNotification] = useState<string | null>(null);
+
+    // Listen for cross-MFE events from the remote MFE
+    useEffect(() => {
+        on("user:created", (data: any) => {
+            setMfeNotification(`New user: ${data.name}`);
+            toast({ message: `MFE Event: User "${data.name}" created`, type: "info", duration: 3000 });
+            setTimeout(() => setMfeNotification(null), 4000);
+        });
+        on("user:updated", (data: any) => {
+            toast({ message: `MFE Event: User "${data.name}" updated`, type: "info", duration: 3000 });
+        });
+        on("user:deleted", () => {
+            toast({ message: "MFE Event: User deleted", type: "warning", duration: 3000 });
+        });
+
+        return () => {
+            off("user:created");
+            off("user:updated");
+            off("user:deleted");
+        };
+    }, [on, off, toast]);
+
+    const navLinks = [
+        { path: "/", label: "Home" },
+        { path: "/users", label: "User Management" },
+    ];
+
+    const permissionCount = Object.values(permissions).filter(Boolean).length;
 
     return (
-        <nav className="bg-white shadow-md border-b">
-            <div className="container mx-auto px-6 py-4">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-8">
-                        <Link to="/" className="text-2xl font-bold text-blue-600">
-                            🏠 Host App
-                        </Link>
-                        <div className="flex space-x-4">
+        <>
+            <Toaster toasts={toasts} onDismiss={dismiss} />
+            <nav className="bg-card border-b border-border sticky top-0 z-40">
+                <div className="container mx-auto px-6 py-3">
+                    <div className="flex items-center justify-between">
+                        {/* Left: Logo + Nav */}
+                        <div className="flex items-center gap-6">
                             <Link
                                 to="/"
-                                className={`px-4 py-2 rounded-lg transition ${location.pathname === "/"
-                                    ? "bg-blue-600 text-white"
-                                    : "text-gray-600 hover:bg-gray-100"
-                                    }`}
+                                className="text-lg font-bold text-foreground"
                             >
-                                Home
+                                Platform
                             </Link>
-                            <Link
-                                to="/users"
-                                className={`px-4 py-2 rounded-lg transition ${location.pathname === "/users"
-                                    ? "bg-blue-600 text-white"
-                                    : "text-gray-600 hover:bg-gray-100"
-                                    }`}
+                            <div className="flex gap-1">
+                                {navLinks.map((link) => (
+                                    <Link
+                                        key={link.path}
+                                        to={link.path}
+                                        className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
+                                            location.pathname === link.path
+                                                ? "bg-primary text-primary-foreground"
+                                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                        }`}
+                                    >
+                                        {link.label}
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Right: Notification + Theme + User */}
+                        <div className="flex items-center gap-3">
+                            {/* MFE Notification Badge */}
+                            {mfeNotification && (
+                                <span className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-3 py-1 rounded-full animate-pulse">
+                                    {mfeNotification}
+                                </span>
+                            )}
+
+                            {/* Theme Toggle */}
+                            <button
+                                onClick={toggleTheme}
+                                className="p-2 rounded-lg hover:bg-muted transition"
+                                title={`Switch to ${resolvedTheme === "dark" ? "light" : "dark"} mode`}
                             >
-                                User Management (MFE)
-                            </Link>
+                                {resolvedTheme === "dark" ? "☀️" : "🌙"}
+                            </button>
+
+                            {/* User Info */}
+                            {user && (
+                                <div className="flex items-center gap-3 pl-3 border-l border-border">
+                                    <Avatar name={user.name} size="sm" />
+                                    <div className="hidden md:block">
+                                        <p className="text-sm font-medium text-foreground leading-tight">
+                                            {user.name}
+                                        </p>
+                                        <div className="flex items-center gap-1.5">
+                                            <Badge
+                                                variant={
+                                                    user.role === "Admin"
+                                                        ? "error"
+                                                        : "default"
+                                                }
+                                            >
+                                                {user.role}
+                                            </Badge>
+                                            <span className="text-[10px] text-muted-foreground">
+                                                {permissionCount}/5 perms
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={logout}
+                                    >
+                                        Logout
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                        <span className="text-sm text-gray-500">Port: 5001</span>
-                        <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                    </div>
                 </div>
-            </div>
-        </nav>
+            </nav>
+        </>
     );
 }
 
+// ─── Home Page ──────────────────────────────────────────────────────────────────
+
 function HomePage() {
+    const { user, permissions } = useAuth();
+
+    const permList = Object.entries(permissions)
+        .map(([key, val]) => ({
+            label: key
+                .replace("can", "")
+                .replace(/([A-Z])/g, " $1")
+                .trim(),
+            allowed: val,
+        }));
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
-            <div className="container mx-auto px-6 py-12">
-                <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-10">
-                    <div className="text-center mb-10">
-                        <h1 className="text-5xl font-bold text-gray-900 mb-4">
-                            🎯 Host Application
-                        </h1>
-                        <p className="text-xl text-gray-600 mb-2">
-                            Module Federation Demo - Platform Level
-                        </p>
-                        <div className="inline-block bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold">
-                            ✅ Host Running on Port 5001
-                        </div>
-                    </div>
+        <div className="container mx-auto px-6 py-10">
+            <div className="max-w-4xl mx-auto space-y-8">
+                <div className="text-center">
+                    <h1 className="text-4xl font-bold text-foreground mb-2">
+                        Host Application
+                    </h1>
+                    <p className="text-lg text-muted-foreground">
+                        Module Federation Platform — {user?.role} Dashboard
+                    </p>
+                </div>
 
-                    <div className="grid md:grid-cols-2 gap-6 mb-8">
-                        <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border-2 border-blue-200">
-                            <h3 className="font-bold text-lg mb-3 text-blue-900">
-                                🏗️ Architecture
-                            </h3>
-                            <ul className="text-sm space-y-2 text-gray-700">
-                                <li className="flex items-start">
-                                    <span className="mr-2">•</span>
-                                    <span><strong>Host App:</strong> Platform container (Port 5001)</span>
-                                </li>
-                                <li className="flex items-start">
-                                    <span className="mr-2">•</span>
-                                    <span><strong>Remote MFE:</strong> User Management (Port 5173)</span>
-                                </li>
-                                <li className="flex items-start">
-                                    <span className="mr-2">•</span>
-                                    <span><strong>Shared SDK:</strong> Common utilities & components</span>
-                                </li>
-                                <li className="flex items-start">
-                                    <span className="mr-2">•</span>
-                                    <span><strong>Federation:</strong> Runtime module loading</span>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border-2 border-green-200">
-                            <h3 className="font-bold text-lg mb-3 text-green-900">
-                                ✨ Key Features
-                            </h3>
-                            <ul className="text-sm space-y-2 text-gray-700">
-                                <li className="flex items-start">
-                                    <span className="mr-2">✓</span>
-                                    <span>Independent deployment of MFEs</span>
-                                </li>
-                                <li className="flex items-start">
-                                    <span className="mr-2">✓</span>
-                                    <span>Shared React singleton</span>
-                                </li>
-                                <li className="flex items-start">
-                                    <span className="mr-2">✓</span>
-                                    <span>Lazy loading with Suspense</span>
-                                </li>
-                                <li className="flex items-start">
-                                    <span className="mr-2">✓</span>
-                                    <span>Error boundaries & fallbacks</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-6 mb-8">
-                        <h3 className="font-bold text-lg mb-3 text-yellow-900">
-                            🚀 How to Run
-                        </h3>
-                        <div className="space-y-2 text-sm">
-                            <div className="bg-white p-3 rounded border border-yellow-200">
-                                <code className="text-gray-800">
-                                    <strong>1.</strong> Terminal 1: <span className="text-blue-600">cd apps/web && bun run dev</span> (Port 5173)
-                                </code>
-                            </div>
-                            <div className="bg-white p-3 rounded border border-yellow-200">
-                                <code className="text-gray-800">
-                                    <strong>2.</strong> Terminal 2: <span className="text-blue-600">cd apps/host && bun run dev</span> (Port 5001)
-                                </code>
-                            </div>
-                            <div className="bg-white p-3 rounded border border-yellow-200">
-                                <code className="text-gray-800">
-                                    <strong>3.</strong> Open: <span className="text-blue-600">http://localhost:5001</span>
-                                </code>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="text-center">
-                        <Link
-                            to="/users"
-                            className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition shadow-lg"
-                        >
-                            Load User Management MFE →
-                        </Link>
-                        <p className="text-sm text-gray-500 mt-3">
-                            This will dynamically load the remote micro-frontend
-                        </p>
-                    </div>
-
-                    <div className="mt-10 pt-8 border-t border-gray-200">
-                        <h3 className="font-semibold mb-3 text-center">📊 MFE Status</h3>
-                        <div className="flex justify-center space-x-4">
-                            <div className="bg-gray-50 px-4 py-2 rounded-lg">
-                                <span className="text-xs text-gray-500">Host App</span>
-                                <div className="flex items-center mt-1">
-                                    <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                                    <span className="text-sm font-semibold">Running</span>
+                <div className="grid md:grid-cols-2 gap-6">
+                    {/* Architecture Info */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-lg">Architecture</CardTitle>
+                            <CardDescription>
+                                Micro-frontend platform overview
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-3 text-sm">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-muted-foreground">
+                                        Host App
+                                    </span>
+                                    <Badge variant="success">Port 5001</Badge>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-muted-foreground">
+                                        Remote MFE
+                                    </span>
+                                    <Badge variant="default">Port 5173</Badge>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-muted-foreground">
+                                        Shared SDK
+                                    </span>
+                                    <Badge variant="default">Singleton</Badge>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-muted-foreground">
+                                        Federation
+                                    </span>
+                                    <Badge variant="default">Webpack 5</Badge>
                                 </div>
                             </div>
-                            <div className="bg-gray-50 px-4 py-2 rounded-lg">
-                                <span className="text-xs text-gray-500">Remote MFE</span>
-                                <div className="flex items-center mt-1">
-                                    <span className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></span>
-                                    <span className="text-sm font-semibold">Ready to Load</span>
-                                </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Permissions */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-lg">
+                                Your Permissions
+                            </CardTitle>
+                            <CardDescription>
+                                Logged in as {user?.name} ({user?.role})
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-2">
+                                {permList.map(({ label, allowed }) => (
+                                    <div
+                                        key={label}
+                                        className="flex justify-between items-center text-sm"
+                                    >
+                                        <span className="text-foreground">
+                                            {label}
+                                        </span>
+                                        <span
+                                            className={
+                                                allowed
+                                                    ? "text-green-600 font-medium"
+                                                    : "text-red-500"
+                                            }
+                                        >
+                                            {allowed ? "✓ Allowed" : "✕ Denied"}
+                                        </span>
+                                    </div>
+                                ))}
                             </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Features */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-lg">Platform Features</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            {[
+                                "Module Federation",
+                                "Role-Based Access",
+                                "Dark Mode",
+                                "NATS Real-time",
+                                "DuckDB Analytics",
+                                "Cross-MFE Events",
+                                "Shared SDK",
+                                "UI Kit Components",
+                                "CLI Tooling",
+                            ].map((feature) => (
+                                <div
+                                    key={feature}
+                                    className="flex items-center gap-2 text-sm text-foreground bg-muted/50 rounded-lg px-3 py-2"
+                                >
+                                    <span className="text-green-500">✓</span>
+                                    {feature}
+                                </div>
+                            ))}
                         </div>
-                    </div>
+                    </CardContent>
+                </Card>
+
+                {/* CTA */}
+                <div className="text-center">
+                    <Link to="/users">
+                        <Button size="lg" className="px-8">
+                            Open User Management MFE →
+                        </Button>
+                    </Link>
+                    <p className="text-xs text-muted-foreground mt-3">
+                        The remote micro-frontend will be lazy loaded via Module
+                        Federation
+                    </p>
                 </div>
             </div>
         </div>
     );
 }
 
-function App() {
+// ─── App Content (Authenticated) ────────────────────────────────────────────────
+
+function AppContent() {
+    const { isAuthenticated } = useAuth();
+
+    if (!isAuthenticated) {
+        return <LoginScreen />;
+    }
+
     return (
-        <BrowserRouter>
+        <div className="min-h-screen bg-background">
             <Navigation />
             <Routes>
                 <Route path="/" element={<HomePage />} />
@@ -229,7 +516,29 @@ function App() {
                     }
                 />
             </Routes>
-        </BrowserRouter>
+        </div>
+    );
+}
+
+// ─── Root App with Providers ────────────────────────────────────────────────────
+
+function App() {
+    // Initialize DuckDB for analytics
+    useEffect(() => {
+        initializeDuckDb({
+            config: { query: { castBigIntToDouble: true } },
+            debug: false,
+        });
+    }, []);
+
+    return (
+        <ThemeProvider defaultTheme="light">
+            <AuthProvider>
+                <BrowserRouter>
+                    <AppContent />
+                </BrowserRouter>
+            </AuthProvider>
+        </ThemeProvider>
     );
 }
 

@@ -45,7 +45,7 @@ module.exports = {
       name: 'user_management_mfe',
       filename: 'remoteEntry.js',
       exposes: {
-        './UserDashboard': './src/pages/UserDashboard.tsx',
+        './UserDashboard': './src/pages/UserDashboardExpose.tsx',
       },
       shared: {
         react: {
