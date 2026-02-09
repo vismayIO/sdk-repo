@@ -1,13 +1,53 @@
-# Turborepo starter
+# Turborepo Micro-Frontend Starter
 
-This Turborepo starter is maintained by the Turborepo core team.
+This Turborepo starter demonstrates Module Federation with NATS real-time messaging using **Webpack 5**.
 
-## Using this example
+## 🚀 Quick Start
 
-Run the following command:
+```bash
+# 1. Install dependencies
+bun install
 
-```sh
-npx create-turbo@latest
+# 2. Build SDK
+cd packages/sdk && bun run build && cd ../..
+
+# 3. Start Web App (Terminal 1)
+cd apps/web && bun run dev
+
+# 4. Start Host App (Terminal 2)
+cd apps/host && bun run dev
+
+# 5. Open browser
+open http://localhost:5001
+```
+
+## 📚 Documentation
+
+- **[WEBPACK_MIGRATION.md](WEBPACK_MIGRATION.md)** - Webpack migration details
+- **[SUMMARY.md](SUMMARY.md)** - Architecture overview and fixes
+- **[FIXES.md](FIXES.md)** - Detailed technical documentation
+- **[NATS_SETUP.md](NATS_SETUP.md)** - NATS server configuration
+
+## 🏗️ Architecture
+
+- **Host App** (Port 5001): Container application with Webpack Module Federation
+- **Web App** (Port 5173): Remote MFE exposing UserDashboard
+- **NATS Server** (Port 8080): Real-time messaging via WebSocket
+- **Shared SDK**: Common components, hooks, and utilities
+
+## ✨ Features
+
+- ✅ Module Federation with Webpack 5
+- ✅ NATS.ws for real-time events
+- ✅ DuckDB WASM for analytics
+- ✅ Shared UI component library
+- ✅ TypeScript throughout
+- ✅ Turborepo monorepo
+
+## 🧪 Testing
+
+```bash
+./test-federation.sh
 ```
 
 ## What's inside?
