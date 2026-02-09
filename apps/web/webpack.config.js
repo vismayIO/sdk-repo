@@ -59,6 +59,9 @@ module.exports = {
         'react-router-dom': {
           singleton: true,
         },
+        '@sdk-repo/sdk': {
+          singleton: true,
+        },
       },
       manifest: true,
       dts: false,
