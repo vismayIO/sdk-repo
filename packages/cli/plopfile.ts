@@ -19,7 +19,7 @@ interface PlopApi {
 }
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const templatesDir = path.join(__dirname, "templates", "remote-app");
+const templatesDir = path.join(__dirname, "templates", "web-app");
 
 export default function registerGenerators(plop: PlopApi): void {
   plop.setGenerator("remote-app", {
@@ -69,12 +69,22 @@ export default function registerGenerators(plop: PlopApi): void {
       {
         type: "add",
         path: "{{targetDirAbs}}/src/pages/{{moduleName}}.tsx",
-        templateFile: path.join(templatesDir, "src", "pages", "module-page.tsx.hbs"),
+        templateFile: path.join(
+          templatesDir,
+          "src",
+          "pages",
+          "module-page.tsx.hbs",
+        ),
       },
       {
         type: "add",
         path: "{{targetDirAbs}}/src/pages/{{moduleName}}Expose.tsx",
-        templateFile: path.join(templatesDir, "src", "pages", "module-expose.tsx.hbs"),
+        templateFile: path.join(
+          templatesDir,
+          "src",
+          "pages",
+          "module-expose.tsx.hbs",
+        ),
       },
       {
         type: "add",

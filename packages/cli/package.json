@@ -18,9 +18,10 @@
     "access": "public"
   },
   "scripts": {
-    "dev": "bun ./bin/create-sdk-remote.ts",
     "check": "bun ./bin/create-sdk-remote.ts help",
-    "typecheck": "bunx tsc --noEmit -p tsconfig.json"
+    "typecheck": "bunx tsc --noEmit -p tsconfig.json",
+    "lint": "bunx tsc --noEmit -p tsconfig.json",
+    "check-types": "bunx tsc --noEmit -p tsconfig.json"
   },
   "keywords": [
     "bun",

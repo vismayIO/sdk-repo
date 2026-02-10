@@ -1,12 +1,13 @@
 {
-  "name": "@sdk-repo/web",
+  "name": "@sdk-repo/remote",
   "private": true,
   "version": "0.0.0",
   "scripts": {
     "build": "webpack --mode production",
     "lint": "eslint .",
     "dev": "webpack serve --mode development",
-    "serve": "webpack serve --mode production"
+    "serve": "webpack serve --mode production",
+    "check-types": "tsc -p tsconfig.app.json --noEmit"
   },
   "dependencies": {
     "react": "^19.2.0",

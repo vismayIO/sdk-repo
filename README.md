@@ -37,25 +37,18 @@ open http://localhost:5001
 - ✅ TypeScript throughout
 - ✅ Turborepo monorepo
 
+## Workspaces
 
-## What's inside?
+- `apps/host`: Host shell app on `:5001` consuming remote modules
+- `apps/web`: Remote MFE on `:5173` exposing `./UserDashboard`
+- `apps/api`: Fastify backend with role-based authorization and schema validation
+- `packages/sdk`: Shared hooks, UI kit, API client, and DuckDB helpers
+- `packages/cli`: `create-sdk-remote` scaffolding CLI
 
-This Turborepo includes the following packages/apps:
+## Tooling
 
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+- Bun workspaces + Turborepo
+- TypeScript
+- Webpack 5 + Module Federation Enhanced
+- Tailwind CSS 4
+- Prettier

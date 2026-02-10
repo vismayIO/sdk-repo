@@ -12,7 +12,9 @@
     "build:ts": "tsc",
     "watch:ts": "tsc -w",
     "dev": "bun run build:ts && concurrently -k -p \"[{name}]\" -n \"TypeScript,App\" -c \"yellow.bold,cyan.bold\" \"bun:watch:ts\" \"bun:dev:start\"",
-    "dev:start": "fastify start --ignore-watch=.ts$ -w -l info -P dist/app.js"
+    "dev:start": "fastify start --ignore-watch=.ts$ -w -l info -P dist/app.js",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "check-types": "tsc -p tsconfig.json --noEmit"
   },
   "keywords": [],
   "author": "",

@@ -1,11 +1,11 @@
-import { createContext, useContext, useState, useCallback } from 'react';
-import type { ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback } from "react";
+import type { ReactNode } from "react";
 
 export interface AuthUser {
   id: string;
   name: string;
   email: string;
-  role: 'Admin' | 'Developer' | 'Designer' | 'Manager' | 'Viewer';
+  role: "Admin" | "Developer" | "Designer" | "Manager" | "Viewer";
   avatar?: string;
 }
 
@@ -77,10 +77,10 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 /** Dev fallback user for standalone MFE development */
 const DEV_USER: AuthUser = {
-  id: 'dev-1',
-  name: 'Dev Admin',
-  email: 'dev@example.com',
-  role: 'Admin',
+  id: "dev-1",
+  name: "Dev Admin",
+  email: "dev@example.com",
+  role: "Admin",
 };
 
 /**
@@ -93,32 +93,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
 
   const permissions = user
-    ? (ROLE_PERMISSIONS[user.role] || DEFAULT_PERMISSIONS)
+    ? ROLE_PERMISSIONS[user.role] || DEFAULT_PERMISSIONS
     : DEFAULT_PERMISSIONS;
 
   const login = useCallback((userData: AuthUser) => {
     setUser(userData);
     // Emit cross-MFE event
     window.dispatchEvent(
-      new CustomEvent('mfe:auth:user-changed', {
-        detail: { userId: userData.id, name: userData.name, role: userData.role },
-      })
+      new CustomEvent("mfe:auth:user-changed", {
+        detail: {
+          userId: userData.id,
+          name: userData.name,
+          role: userData.role,
+        },
+      }),
     );
   }, []);
 
   const logout = useCallback(() => {
     setUser(null);
-    window.dispatchEvent(new CustomEvent('mfe:auth:logout'));
+    window.dispatchEvent(new CustomEvent("mfe:auth:logout"));
   }, []);
 
   const hasPermission = useCallback(
     (action: keyof Permission) => permissions[action] || false,
-    [permissions]
+    [permissions],
   );
 
   return (
     <AuthContext.Provider
-      value={{ user, permissions, isAuthenticated: !!user, login, logout, hasPermission }}
+      value={{
+        user,
+        permissions,
+        isAuthenticated: !!user,
+        login,
+        logout,
+        hasPermission,
+      }}
     >
       {children}
     </AuthContext.Provider>
@@ -136,13 +147,17 @@ export function useAuth(): AuthContextValue {
 
   // Standalone MFE fallback (no host AuthProvider)
   if (!context) {
+    const standalonePermissions =
+      ROLE_PERMISSIONS[DEV_USER.role] || DEFAULT_PERMISSIONS;
     return {
       user: DEV_USER,
-      permissions: ROLE_PERMISSIONS['Admin']!,
+      permissions: standalonePermissions,
       isAuthenticated: true,
-      login: () => console.warn('[useAuth] No AuthProvider — running standalone'),
-      logout: () => console.warn('[useAuth] No AuthProvider — running standalone'),
-      hasPermission: () => true,
+      login: () =>
+        console.warn("[useAuth] No AuthProvider — running standalone"),
+      logout: () =>
+        console.warn("[useAuth] No AuthProvider — running standalone"),
+      hasPermission: (action) => standalonePermissions[action] || false,
     };
   }
 
