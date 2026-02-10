@@ -16,7 +16,7 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "cli": "bun cli.js",
+    "cli": "bun packages/cli/bin/create-sdk-remote.js",
     "preview": "turbo preview"
   },
   "workspaces": [

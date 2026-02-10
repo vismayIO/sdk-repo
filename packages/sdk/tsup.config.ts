@@ -1,0 +1,50 @@
+import { defineConfig } from "tsup";
+
+export default defineConfig((options) => [
+  {
+    name: "duck-db",
+    entryPoints: ["src/duck-db/index.ts"],
+    format: ["cjs", "esm"],
+    dts: true,
+    external: ["react", "@duckdb/duckdb-wasm"],
+    treeshake: true,
+    clean: true,
+    outDir: "dist/duck-db",
+    ...options,
+  },
+  {
+    name: "components",
+    entryPoints: ["src/components/index.ts"],
+    format: ["cjs", "esm"],
+    dts: true,
+    external: ["react", "tailwindcss"],
+    treeshake: true,
+    clean: true,
+    outDir: "dist/components",
+    loaders: { ".css": "css" },
+    onSuccess:
+      "bunx @tailwindcss/cli -i src/components/style/index.css -o ./dist/styles.css --minify",
+    ...options,
+  },
+  {
+    name: "hooks",
+    entryPoints: ["src/hooks/index.ts"],
+    format: ["cjs", "esm"],
+    dts: true,
+    external: ["react"],
+    treeshake: true,
+    clean: true,
+    outDir: "dist/hooks",
+    ...options,
+  },
+  {
+    name: "api",
+    entryPoints: ["src/api/index.ts"],
+    format: ["cjs", "esm"],
+    dts: true,
+    treeshake: true,
+    clean: true,
+    outDir: "dist/api",
+    ...options,
+  },
+]);

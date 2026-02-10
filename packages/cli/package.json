@@ -1,0 +1,46 @@
+{
+  "name": "create-sdk-remote",
+  "version": "0.2.0",
+  "description": "Bun + TypeScript + Plop CLI for remote app scaffolding",
+  "type": "module",
+  "bin": {
+    "create-sdk-remote": "./bin/create-sdk-remote.ts"
+  },
+  "files": [
+    "bin",
+    "src",
+    "templates",
+    "plopfile.ts",
+    "tsconfig.json",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "dev": "bun ./bin/create-sdk-remote.ts",
+    "check": "bun ./bin/create-sdk-remote.ts help",
+    "typecheck": "bunx tsc --noEmit -p tsconfig.json"
+  },
+  "keywords": [
+    "bun",
+    "cli",
+    "module-federation",
+    "microfrontend",
+    "plop",
+    "scaffold",
+    "typescript"
+  ],
+  "license": "MIT",
+  "engines": {
+    "bun": ">=1.0.0"
+  },
+  "dependencies": {
+    "node-plop": "^0.32.3",
+    "plop": "^4.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.3"
+  }
+}

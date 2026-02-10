@@ -1,0 +1,67 @@
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const { ModuleFederationPlugin } = require("@module-federation/enhanced/webpack");
+
+module.exports = {
+  entry: "./src/index.ts",
+  mode: "development",
+  devServer: {
+    port: {{port}},
+    historyApiFallback: true,
+    hot: true,
+    headers: {
+      "Access-Control-Allow-Origin": "*"
+    }
+  },
+  output: {
+    publicPath: "http://localhost:{{port}}/",
+    clean: true
+  },
+  resolve: {
+    extensions: [".tsx", ".ts", ".jsx", ".js", ".json"]
+  },
+  module: {
+    rules: [
+      {
+        test: /\.(ts|tsx|js|jsx)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: [["@babel/preset-react", { runtime: "automatic" }], "@babel/preset-typescript"]
+          }
+        }
+      },
+      {
+        test: /\.css$/,
+        use: ["style-loader", "css-loader"]
+      }
+    ]
+  },
+  plugins: [
+    new ModuleFederationPlugin({
+      name: "{{federationName}}",
+      filename: "remoteEntry.js",
+      exposes: {
+        "./{{moduleName}}": "./src/pages/{{moduleName}}Expose.tsx"
+      },
+      shared: {
+        react: {
+          singleton: true,
+          requiredVersion: "^19.2.0"
+        },
+        "react-dom": {
+          singleton: true,
+          requiredVersion: "^19.2.0"
+        },
+        "react-router-dom": {
+          singleton: true
+        }
+      },
+      manifest: true,
+      dts: false
+    }),
+    new HtmlWebpackPlugin({
+      template: "./index.html"
+    })
+  ]
+};

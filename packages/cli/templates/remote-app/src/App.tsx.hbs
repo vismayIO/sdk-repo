@@ -1,0 +1,23 @@
+import { Link, Route, Routes } from "react-router-dom";
+import { {{moduleName}} } from "./pages/{{moduleName}}";
+
+export function App() {
+  return (
+    <div className="shell">
+      <header className="shell-header">
+        <h1>{{title}} Remote</h1>
+        <nav>
+          <Link to="/">Home</Link>
+          <Link to="/dashboard">{{moduleName}}</Link>
+        </nav>
+      </header>
+
+      <main className="shell-main">
+        <Routes>
+          <Route path="/" element={<p>Remote app is running.</p>} />
+          <Route path="/dashboard" element={<{{moduleName}} />} />
+        </Routes>
+      </main>
+    </div>
+  );
+}
