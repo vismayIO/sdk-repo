@@ -41,7 +41,7 @@ Ye ek complete **Micro-Frontend (MFE)** implementation hai jo **Module Federatio
 │   │   ├── src/
 │   │   │   ├── App.tsx    # Main host app with MFE loading
 │   │   │   └── main.tsx
-│   │   ├── vite.config.ts # Federation config (consumer)
+│   │   ├── webpack.config.js # Federation config (consumer)
 │   │   └── package.json
 │   │
 │   └── web/               # Remote MFE (Port 5173)
@@ -51,7 +51,7 @@ Ye ek complete **Micro-Frontend (MFE)** implementation hai jo **Module Federatio
 │       │   ├── components/
 │       │   │   └── UserForm.tsx
 │       │   └── App.tsx
-│       ├── vite.config.ts # Federation config (exposes)
+│       ├── webpack.config.js # Federation config (exposes)
 │       └── package.json
 │
 └── packages/
@@ -70,7 +70,7 @@ Ye ek complete **Micro-Frontend (MFE)** implementation hai jo **Module Federatio
 
 1. **Module Federation Setup**
    - Host app consumes remote MFE
-   - Vite Plugin Federation configured
+   - Webpack 5 Module Federation configured
    - Shared React singleton
 
 2. **React Structure**
@@ -86,8 +86,8 @@ Ye ek complete **Micro-Frontend (MFE)** implementation hai jo **Module Federatio
    - Loading states
 
 4. **Real-Time Events**
-   - Socket.io integration (mock mode)
-   - USER_CREATED event subscription
+   - NATS WebSocket integration
+   - user.created/user.updated/user.deleted subscriptions
    - Real-time UI updates
    - Event cleanup
 
@@ -116,23 +116,27 @@ Ye ek complete **Micro-Frontend (MFE)** implementation hai jo **Module Federatio
 ## 🚀 How to Run
 
 ### Prerequisites
+
 ```bash
 bun --version  # or npm/yarn
 ```
 
 ### Step 1: Install Dependencies
+
 ```bash
 # Root level
 bun install
 ```
 
 ### Step 2: Build SDK
+
 ```bash
 cd packages/sdk
 bun run build
 ```
 
 ### Step 3: Run Remote MFE (Terminal 1)
+
 ```bash
 cd apps/web
 bun run dev
@@ -140,6 +144,7 @@ bun run dev
 ```
 
 ### Step 4: Run Host App (Terminal 2)
+
 ```bash
 cd apps/host
 bun run dev
@@ -147,6 +152,7 @@ bun run dev
 ```
 
 ### Step 5: Open Browser
+
 ```
 http://localhost:5001
 ```
@@ -154,21 +160,25 @@ http://localhost:5001
 ## 🎯 Key Concepts Demonstrated
 
 ### 1. Module Federation
+
 - **Host App** dynamically loads **Remote MFE** at runtime
 - No build-time coupling
 - Independent deployment
 
 ### 2. SDK Pattern
+
 - Centralized API client
 - Shared hooks and components
 - Version control for backward compatibility
 
 ### 3. Real-Time Updates
+
 - Event-driven UI
-- Socket.io integration (mock mode for demo)
+- NATS integration (reconnect + dedup in SDK hook)
 - Subscription lifecycle management
 
 ### 4. Clean Architecture
+
 - Clear boundaries between MFEs
 - No global state leakage
 - Replaceable modules
@@ -177,10 +187,10 @@ http://localhost:5001
 
 - **React 19** - UI library
 - **TypeScript** - Type safety
-- **Vite** - Build tool
+- **Webpack 5** - Build tool
 - **Module Federation** - Micro-frontend architecture
 - **Tailwind CSS** - Styling
-- **Socket.io** - Real-time events
+- **NATS** - Real-time events
 - **DuckDB WASM** - In-browser database
 - **Turborepo** - Monorepo management
 - **Bun** - Package manager
@@ -188,23 +198,27 @@ http://localhost:5001
 ## 🧪 Testing the POC
 
 ### Test Module Federation
+
 1. Start both apps (host & remote)
 2. Navigate to `/users` in host app
 3. Verify MFE loads dynamically
 4. Check browser network tab for `remoteEntry.js`
 
 ### Test CRUD Operations
+
 1. Click "Add User"
 2. Fill form and submit
 3. Verify user appears in table
 4. Edit and delete users
 
 ### Test Real-Time Events
+
 1. Create a new user
 2. Watch for notification (top-right)
 3. Check console for event logs
 
 ### Test Error Handling
+
 1. Stop remote MFE (Ctrl+C)
 2. Try loading `/users` in host
 3. Verify error fallback shows
@@ -212,18 +226,21 @@ http://localhost:5001
 ## 🎓 Learning Points
 
 ### Why Module Federation?
+
 - **Independent Deployment**: Deploy MFEs separately
 - **Runtime Integration**: No rebuild of host needed
 - **Team Autonomy**: Different teams own different MFEs
 - **Scalability**: Add/remove MFEs easily
 
 ### Why SDK?
+
 - **Consistency**: Same API across all MFEs
 - **Versioning**: Control breaking changes
 - **Reusability**: Write once, use everywhere
 - **Type Safety**: Shared TypeScript types
 
 ### Why Not Share Redux Store?
+
 - **Tight Coupling**: MFEs become dependent
 - **Version Conflicts**: Hard to upgrade
 - **State Leakage**: Hard to debug
@@ -232,33 +249,44 @@ http://localhost:5001
 ## 🔧 Configuration Files
 
 ### Host App Federation Config
-```typescript
-// apps/host/vite.config.ts
-federation({
+
+```js
+// apps/host/webpack.config.js
+new ModuleFederationPlugin({
   name: "host_app",
   remotes: {
-    userManagementMfe: "http://localhost:5173/assets/remoteEntry.js",
+    userManagementMfe:
+      "user_management_mfe@http://localhost:5173/mf-manifest.json",
   },
-  shared: ["react", "react-dom"],
-})
+  shared: {
+    react: { singleton: true },
+    "react-dom": { singleton: true },
+  },
+});
 ```
 
 ### Remote MFE Federation Config
-```typescript
-// apps/web/vite.config.ts
-federation({
+
+```js
+// apps/web/webpack.config.js
+new ModuleFederationPlugin({
   name: "user_management_mfe",
   exposes: {
-    "./UserDashboard": "./src/pages/UserDashboard.tsx",
+    "./UserDashboard": "./src/pages/UserDashboardExpose.tsx",
   },
-  shared: ["react", "react-dom"],
-})
+  shared: {
+    react: { singleton: true },
+    "react-dom": { singleton: true },
+  },
+  manifest: true,
+});
 ```
 
 ## 📈 Next Steps
 
 ### To Make Production Ready:
-1. Add authentication & authorization
+
+1. Replace role-header demo auth with JWT/OAuth and server-side token validation
 2. Connect real backend API
 3. Add comprehensive error handling
 4. Implement logging & monitoring
@@ -268,6 +296,7 @@ federation({
 8. Implement caching strategies
 
 ### To Scale to 20+ MFEs:
+
 1. Create MFE registry
 2. Implement version management
 3. Add health checks
@@ -280,23 +309,26 @@ federation({
 ## 🐛 Troubleshooting
 
 ### MFE Not Loading?
+
 - Check if remote app is running on port 5173
 - Verify `remoteEntry.js` is accessible
 - Check browser console for errors
 
 ### Type Errors?
+
 - Run `bun install` in root
 - Rebuild SDK: `cd packages/sdk && bun run build`
 
 ### Port Already in Use?
-- Change port in vite.config.ts
-- Update remote URL in host config
+
+- Change port in `webpack.config.js`
+- Update remote manifest URL in host config
 
 ## 📝 Notes
 
-- Mock API is used (no real backend needed)
-- Real-time events are simulated
-- DuckDB is initialized but not used in this demo
+- Fastify API includes schema validation + role-based authorization via `x-user-role`
+- Real-time events use NATS (`ws://localhost:8080`)
+- DuckDB analytics run in the web MFE dashboard
 - All data is in-memory (resets on refresh)
 
 ## 🎉 Success Criteria Met

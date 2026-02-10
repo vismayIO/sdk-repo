@@ -16,13 +16,13 @@ fi
 echo ""
 echo "📄 Checking key files..."
 files=(
-    "apps/host/vite.config.ts"
-    "apps/web/vite.config.ts"
+    "apps/host/webpack.config.js"
+    "apps/web/webpack.config.js"
     "apps/web/src/pages/UserDashboard.tsx"
     "packages/sdk/src/hooks/useNats.ts"
     "packages/sdk/src/hooks/useUsers.ts"
     "packages/sdk/src/api/client.ts"
-    "cli.js"
+    "packages/cli/bin/create-sdk-remote.ts"
 )
 
 for file in "${files[@]}"; do
@@ -36,7 +36,7 @@ done
 # Check CLI
 echo ""
 echo "🛠️  Testing CLI..."
-npm run cli help > /dev/null 2>&1
+bun run cli help > /dev/null 2>&1
 if [ $? -eq 0 ]; then
     echo "✅ CLI is working"
 else
